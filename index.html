@@ -12,31 +12,26 @@
 </head>
 <body class="main">
 <div>
-    <h2 id="header1">MQTT Remote</h2>
-    <h3 id="header2">Press button to remotely control </h3>
-    <button id="button" onclick="remoteControl()" class="button-green">Switch OFF</button>
+    Connection URL: <input name ="url" id="url" placeholder="Enter Connection URL" value="ws://localhost:8883/mqtt"/>
+    Topic: <input name ="command" id="command" placeholder="Enter Topic" value="/command"/>
 
-    <h4 id="logger">test</h4>
+    <h2 id="header1">MQTT Remote</h2>
+    <br>
+    <button id="button" onclick="remoteControl()" class="button-green">Switch OFF</button>
+    <h4 id="logger"></h4>
 </div>
 
 </body>
 <script>
     // An mqtt variable will be initialized globally
     console.log(mqtt)
-    const url = 'ws://localhost:8883/mqtt'
-    const topic = "/thinkuldeep"
+    const url = $('#url').val()
+    const topic = $('#command').val()
 
     const log = $('#logger');
 
     log.html('Connecting...');
 
-     options = {
-        clean: true,
-        connectTimeout: 4000,
-        // Authentication
-        username: 'thikuldeep',
-        password: 'mqtt',
-    }
     const client  = mqtt.connect(url)
     client.on('connect', function () {
         log.html('Connected.')
@@ -51,18 +46,12 @@
         })
     })
 
-
-
-    log_type all
-    log_dest file /usr/local/opt/mosquitto/mosquitto.log
-    log_facility 5
-
     // Receive messages
     client.on('message', function (topic, message) {
         button = $('#button');
         // message is Buffer
         console.log(message.toString())
-        if (message.toString() === 'ON-OK') {
+        if (message.toString() === 'ON_OK') {
             console.log('Switch ON')
             if(button.hasClass('button-green')) {
                 button.removeClass('button-green')
@@ -72,7 +61,7 @@
             }
             log.html('Switched ON');
             button.enabled = true;
-        } else if(message.toString() === 'OFF-OK') {
+        } else if(message.toString() === 'OFF_OK') {
             console.log('Switch OFF')
             if(button.hasClass('button-red')) {
                 button.removeClass('button-red')
@@ -94,13 +83,13 @@
     function remoteControl() {
         button = $('#button');
         if(button.hasClass('button-red')) {
-            log.html('Switching ON...');
-            button.enabled = false;
-            client.publish(topic, 'ON')
-        } else {
             log.html('Switching OFF...');
             button.enabled = false;
             client.publish(topic, 'OFF')
+        } else {
+            log.html('Switching ON...');
+            button.enabled = false;
+            client.publish(topic, 'ON')
         }
     }
 
