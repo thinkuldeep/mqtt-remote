@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <title>MQTT Remote</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+<body class="main">
+<div>
+    <h2 id="header1">MQTT Remote</h2>
+    <h3 id="header2">Press button to remotely control </h3>
+    <button id="button" onclick="remoteControl()" class="button-green">Switch OFF</button>
+
+    <h4 id="logger">test</h4>
+</div>
+
+</body>
+<script>
+    // An mqtt variable will be initialized globally
+    console.log(mqtt)
+    const url = 'ws://localhost:8883/mqtt'
+    const topic = "/thinkuldeep"
+
+    const log = $('#logger');
+
+    log.html('Connecting...');
+
+     options = {
+        clean: true,
+        connectTimeout: 4000,
+        // Authentication
+        username: 'thikuldeep',
+        password: 'mqtt',
+    }
+    const client  = mqtt.connect(url)
+    client.on('connect', function () {
+        log.html('Connected.')
+        // Subscribe to a topic
+        client.subscribe(topic, function (err) {
+            console.log(err)
+            if (!err) {
+                // Publish a message to a topic
+                log.html('Switching ON...');
+                client.publish(topic, 'ON')
+            }
+        })
+    })
+
+
+
+    log_type all
+    log_dest file /usr/local/opt/mosquitto/mosquitto.log
+    log_facility 5
+
+    // Receive messages
+    client.on('message', function (topic, message) {
+        button = $('#button');
+        // message is Buffer
+        console.log(message.toString())
+        if (message.toString() === 'ON-OK') {
+            console.log('Switch ON')
+            if(button.hasClass('button-green')) {
+                button.removeClass('button-green')
+                button.addClass('button-red')
+                button.text('Switch OFF')
+                $('.main').css('background-color', 'green')
+            }
+            log.html('Switched ON');
+            button.enabled = true;
+        } else if(message.toString() === 'OFF-OK') {
+            console.log('Switch OFF')
+            if(button.hasClass('button-red')) {
+                button.removeClass('button-red')
+                button.addClass('button-green')
+                button.text('Switch ON')
+                $('.main').css('background-color', 'red')
+            }
+            log.html('Switched OFF');
+            button.enabled = true;
+        }
+    })
+
+    client.on('error', function (error) {
+        console.log('Can not connect', error)
+        log.html('Can not connect...');
+        client.end();
+    })
+
+    function remoteControl() {
+        button = $('#button');
+        if(button.hasClass('button-red')) {
+            log.html('Switching ON...');
+            button.enabled = false;
+            client.publish(topic, 'ON')
+        } else {
+            log.html('Switching OFF...');
+            button.enabled = false;
+            client.publish(topic, 'OFF')
+        }
+    }
+
+</script>
+</html>

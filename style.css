@@ -1,0 +1,40 @@
+/* Include the padding and border in an element's total width and height */
+* {
+    box-sizing: border-box;
+    font-family: avenir next,avenir,sans-serif;
+}
+
+.main {
+    text-align: center;
+    background:grey ;
+}
+
+.button-red {
+    background-color: red;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.button-red:hover {
+    background-color: green;
+    border: 1px solid grey;
+}
+
+.button-green {
+    background-color: green;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.button-green:hover {
+    background-color: red;
+    border: 1px solid grey;
+}
