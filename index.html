@@ -14,10 +14,12 @@
 <div>
     Connection URL: <input name ="url" id="url" placeholder="Enter Connection URL" value="ws://localhost:8883/mqtt"/>
     Topic: <input name ="command" id="command" placeholder="Enter Topic" value="/command"/>
+    <br>
+    <button id="setup" onclick="setup()" class="button-green">Setup</button>
 
     <h2 id="header1">MQTT Remote</h2>
     <br>
-    <button id="button" onclick="remoteControl()" class="button-green">Switch OFF</button>
+    <button id="remote-control" onclick="remoteControl()" class="button-green">Switch OFF</button>
     <h4 id="logger"></h4>
 </div>
 
@@ -25,63 +27,81 @@
 <script>
     // An mqtt variable will be initialized globally
     console.log(mqtt)
-    const url = $('#url').val()
-    const topic = $('#command').val()
-
+    $('#remote-control').hide();
     const log = $('#logger');
+    let client = null;
+    let topic = null;
 
-    log.html('Connecting...');
+    function setup() {
+        url = $('#url').val()
+        command = $('#command').val()
+        console.log(url, command)
+        if(url && command) {
+            $('#remote-control').hide();
 
-    const client  = mqtt.connect(url)
-    client.on('connect', function () {
-        log.html('Connected.')
-        // Subscribe to a topic
-        client.subscribe(topic, function (err) {
-            console.log(err)
-            if (!err) {
-                // Publish a message to a topic
-                log.html('Switching ON...');
-                client.publish(topic, 'ON')
+            client = connect(url, command)
+            listen(client)
+            topic = command;
+        }
+        $('#remote-control').show();
+    }
+
+    function connect(url, topic){
+        log.html('Connecting...');
+        const client  = mqtt.connect(url)
+        client.on('connect', function () {
+            log.html('Connected.')
+            // Subscribe to a topic
+            client.subscribe(topic, function (err) {
+                console.log(err)
+                if (!err) {
+                    // Publish a message to a topic
+                    log.html('Switching ON...');
+                    client.publish(topic, 'ON')
+                }
+            })
+        })
+
+        return client;
+    }
+    // Receive messages
+    function listen(client) {
+        client.on('message', function (topic, message) {
+            button =  $('#remote-control');
+            // message is Buffer
+            console.log(message.toString())
+            if (message.toString() === 'ON_OK') {
+                console.log('Switch ON')
+                if(button.hasClass('button-green')) {
+                    button.removeClass('button-green')
+                    button.addClass('button-red')
+                    button.text('Switch OFF')
+                    $('.main').css('background-color', 'green')
+                }
+                log.html('Switched ON');
+                button.enabled = true;
+            } else if(message.toString() === 'OFF_OK') {
+                console.log('Switch OFF')
+                if(button.hasClass('button-red')) {
+                    button.removeClass('button-red')
+                    button.addClass('button-green')
+                    button.text('Switch ON')
+                    $('.main').css('background-color', 'red')
+                }
+                log.html('Switched OFF');
+                button.enabled = true;
             }
         })
-    })
 
-    // Receive messages
-    client.on('message', function (topic, message) {
-        button = $('#button');
-        // message is Buffer
-        console.log(message.toString())
-        if (message.toString() === 'ON_OK') {
-            console.log('Switch ON')
-            if(button.hasClass('button-green')) {
-                button.removeClass('button-green')
-                button.addClass('button-red')
-                button.text('Switch OFF')
-                $('.main').css('background-color', 'green')
-            }
-            log.html('Switched ON');
-            button.enabled = true;
-        } else if(message.toString() === 'OFF_OK') {
-            console.log('Switch OFF')
-            if(button.hasClass('button-red')) {
-                button.removeClass('button-red')
-                button.addClass('button-green')
-                button.text('Switch ON')
-                $('.main').css('background-color', 'red')
-            }
-            log.html('Switched OFF');
-            button.enabled = true;
-        }
-    })
-
-    client.on('error', function (error) {
-        console.log('Can not connect', error)
-        log.html('Can not connect...');
-        client.end();
-    })
+        client.on('error', function (error) {
+            console.log('Can not connect', error)
+            log.html('Can not connect...');
+            client.end();
+        })
+    }
 
     function remoteControl() {
-        button = $('#button');
+        button = $('#remote-control');
         if(button.hasClass('button-red')) {
             log.html('Switching OFF...');
             button.enabled = false;
