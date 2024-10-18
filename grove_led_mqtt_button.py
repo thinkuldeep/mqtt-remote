@@ -12,7 +12,7 @@ grovepi.pinMode(button,"INPUT")
 time.sleep(1)
 
 button_state = False
-hostname = "192.168.1.13"
+hostname = "192.192.2.13" #gstfill in
 broker_port = 1883
 topic = "/command"
 
