@@ -11,7 +11,11 @@
 
 </head>
 <body class="main">
+<header>
+    <h1>MQTT Remote Control</h1>
+</header>
 <div>
+    <br>
     Connection URL: <input name ="url" id="url" placeholder="Enter Connection URL" value="ws://localhost:8883/mqtt"/>
     Topic: <input name ="command" id="command" placeholder="Enter Topic" value="/command"/>
     <br>
@@ -23,6 +27,11 @@
     <h4 id="logger"></h4>
 </div>
 
+<footer>
+    &copy; 2024 <a id="home" href="http://thinkuldeep.com" >thinkuldeep.com</a>
+</footer>
+
+</div>
 </body>
 <script>
     // An mqtt variable will be initialized globally

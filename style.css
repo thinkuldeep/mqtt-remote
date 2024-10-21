@@ -4,6 +4,39 @@
     font-family: avenir next,avenir,sans-serif;
 }
 
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+.main {
+    flex: 1;
+}
+
+header {
+    background-color: #f1f1f1;
+    text-align: center;
+    padding: 5px;
+    position: sticky;
+    top: 0;
+    width: 100%;
+    z-index: 1000; /* Ensure the header stays above other content */
+}
+
+footer {
+    background-color: #f1f1f1;
+    text-align: center;
+    padding: 10px;
+    position: sticky;
+    bottom: 0;
+    width: 100%;
+}
+
 .main {
     text-align: center;
     background:grey ;
@@ -46,3 +79,4 @@ input {
     background-color: red;
     border: 1px solid grey;
 }
+
